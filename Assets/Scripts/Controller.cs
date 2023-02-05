@@ -4,12 +4,16 @@ using UnityEngine;
 
 public static class Controller 
 {
+
     public static GameMode currentState = GameMode.Overview;
     public enum GameMode
     {
         Building,
         Overview,
         Fighting,
-        Menu
+        Menu,
+        EndTurn,
+        PlayerMove,
+        AutoMove
     }
 }

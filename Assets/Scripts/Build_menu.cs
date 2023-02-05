@@ -10,7 +10,11 @@ public class Build_menu : MonoBehaviour
     void Update()
     {
         if (!(Controller.currentState == Controller.GameMode.Building))
-        {Build_Menu.SetActive(false); return;}
+        {
+            Build_Menu.SetActive(false); 
+        clickedCellPos = new Vector3Int(0, 0, -5);
+            return;
+        }
         else
             Build_Menu.SetActive(true);
 
@@ -22,7 +26,6 @@ public class Build_menu : MonoBehaviour
 
         if (clickedCellPos.z < -1)
         {
-            Debug.Log("reached");
             Build_Menu.transform.position = cellCenterPos;
         }
 
