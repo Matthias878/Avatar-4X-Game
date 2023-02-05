@@ -9,9 +9,6 @@ public class Input_Menu : MonoBehaviour
     {
         if (Input.GetKeyDown("b"))
         {
-
-            Debug.Log("Test");
-
         if (Controller.currentState == Controller.GameMode.Building)
         {
             Controller.currentState = Controller.GameMode.Overview;
