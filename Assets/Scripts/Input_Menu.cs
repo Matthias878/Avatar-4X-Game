@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class Input_Menu : MonoBehaviour
 {
     public Button endturnbutton;
-    public TileData tileData;
     public Tilemap tilemap;
     private void Start()
     {
@@ -42,5 +41,17 @@ public class Input_Menu : MonoBehaviour
                     }
                 }
             }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (Controller.currentState == Controller.GameMode.Overview)
+            {
+                Controller.currentState = Controller.GameMode.Menu;
+            }
+            else
+            {
+                Controller.currentState = Controller.GameMode.Overview;
+            }
+        }
         }
 }

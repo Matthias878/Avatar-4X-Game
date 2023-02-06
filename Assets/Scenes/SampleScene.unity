@@ -719,6 +719,7 @@ GameObject:
   - component: {fileID: 668997593}
   - component: {fileID: 668997594}
   - component: {fileID: 668997595}
+  - component: {fileID: 668997596}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -754,7 +755,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   endturnbutton: {fileID: 660704075}
-  tileData: {fileID: 668997595}
   tilemap: {fileID: 2078381747}
 --- !u!114 &668997594
 MonoBehaviour:
@@ -782,6 +782,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c81fc0fb4b5ca340b6d1bb609b2915e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startArmy: {fileID: 532878245}
+--- !u!114 &668997596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668997590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13f432969682cb54893d8cb2a014351c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilemap: {fileID: 2078381747}
 --- !u!1 &969200901
 GameObject:
   m_ObjectHideFlags: 0
@@ -8690,7 +8704,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2116084618}
-  - component: {fileID: 2116084619}
   m_Layer: 0
   m_Name: Move_Menu
   m_TagString: Untagged
@@ -8714,15 +8727,3 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2116084619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2116084617}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13f432969682cb54893d8cb2a014351c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
