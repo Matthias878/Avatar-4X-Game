@@ -19,7 +19,7 @@ public class Move_Menu : MonoBehaviour
         {
             doIfFirstExecuted = true;
             tomove = TileData.GetPlayerMoveable(cellPos.x, cellPos.y);
-            TileData.Showmoveable(cellPos.x, cellPos.y, 2);
+            TileData.Showmoveable(cellPos.x, cellPos.y, 3);
         }
         
         if (Input.GetMouseButtonDown(0))

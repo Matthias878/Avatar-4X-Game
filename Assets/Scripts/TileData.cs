@@ -1,16 +1,15 @@
-using Microsoft.Unity.VisualStudio.Editor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.VisualScripting;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class TileData : MonoBehaviour
 {
-
+    private static TileData errorfixer;
+    public  Tilemap tilemap;
     public GameObject startArmy;
-    //public GameObject footstepsCanGo = new GameObject();
+    public  GameObject footstepsCanGo;
     private List<GameObject> todestroy= new List<GameObject>();
     public static List<(int, int, int, GameObject)> player_moveable = new List<(int, int, int, GameObject)>(); //xKoordinate, yKoordinate, movementPoints
     public class Tile
@@ -38,6 +37,9 @@ public class TileData : MonoBehaviour
 
     void Start()
     {
+        errorfixer = new TileData();
+        errorfixer.tilemap = this.tilemap;
+        errorfixer.footstepsCanGo = this.footstepsCanGo;
 
         player_moveable.Add((-2, -2, 8, startArmy));
         tiles = new Tile[41, 41];
@@ -92,101 +94,110 @@ public class TileData : MonoBehaviour
     }
 
 
-    public static bool[,] Showmoveable(int X, int Y, int movementPoints)
+    public static (bool, int)[,] Showmoveable(int X, int Y, int movementPoints)
     {
+       
         int x = X + 20;
         int y = Y + 20;
+        Debug.Log((x - 20) + " " + (y - 20));
         int step = 0;
-        Debug.Log("START = " + x+ " "+y );
-        bool[,] visited = new bool[41, 41];
-        for (int i = 0; i < 41; i++) { for (int j = 0; j < 41; j++) { visited[i, j] = false; } }
-        visited[x, y] = true;
-        bool[,] a = BinaryOr(visited, (ShowmoveableHelp(x + 1, y, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-        bool[,] b = BinaryOr(a, (ShowmoveableHelp(x - 1, y, movementPoints - calculateTileMoveCost(x, y), visited, step)));
+        (bool, int)[,] visited = new (bool, int)[41, 41];
+        for (int i = 0; i < 41; i++) { for (int j = 0; j < 41; j++) { visited[i, j] = (false, 0); } }
+        visited[x, y] = (true,3);
+        visited[18, 18] = (true,3);
+        int tempx;
         if (y % 2 == 0)
-        {
-            bool[,] g = BinaryOr(b, (ShowmoveableHelp(x, y + 1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] h = BinaryOr(g, (ShowmoveableHelp(x, y - 1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] i = BinaryOr(h, (ShowmoveableHelp(x - 1, y + 1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] j = BinaryOr(i, (ShowmoveableHelp(x - 1, y - 1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            return j;
-        }
+        { tempx = x - 1; }
         else
-        {
-
-            bool[,] c = BinaryOr(b, (ShowmoveableHelp(x, y + 1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] d = BinaryOr(c, (ShowmoveableHelp(x, y - 1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] e = BinaryOr(d, (ShowmoveableHelp(x + 1, y + 1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] f = BinaryOr(e, (ShowmoveableHelp(x + 1, y - 1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            return f;
-        }
+        { tempx = x + 1; }
+        (bool, int)[,] a = BinaryOr(visited, (ShowmoveableHelp(x + 1, y, movementPoints, visited)));
+        (bool, int)[,] b = BinaryOr(a, (ShowmoveableHelp(x - 1, y, movementPoints, visited)));
+        (bool, int)[,] g = BinaryOr(b, (ShowmoveableHelp(x, y + 1, movementPoints, visited)));
+        (bool, int)[,] h = BinaryOr(g, (ShowmoveableHelp(x, y - 1, movementPoints, visited)));
+        (bool, int)[,] e = BinaryOr(h, (ShowmoveableHelp(tempx, y + 1, movementPoints, visited)));
+        (bool, int)[,] f = BinaryOr(e, (ShowmoveableHelp(tempx, y - 1, movementPoints, visited)));
+        return f;
     }
 
-    static bool[,] ShowmoveableHelp(int x, int y, int movementPoints, bool[,] visited, int step)
+    static (bool, int)[,] ShowmoveableHelp(int x, int y, int movementPoints, (bool, int)[,] visited )
     {
-        step++;
+        Debug.Log("X: " + (x - 20) + " Y: " + (y - 20) + " currentPoints: " + (movementPoints-1));
+        int endmovementPoints = movementPoints - calculateTileMoveCost(x, y);
+
         if (tiles[x, y].island == false)
         {
+            Debug.Log("Ist kein Land");
+            return visited;
+        }
 
-            Debug.Log("Tile is not Land");
-            return visited;
-
-        }
-        if (visited[x, y ]== true)
+        if (visited[x, y].Item1 == true && ((visited[x,y].Item2> endmovementPoints)))
         {
+            
+            Debug.Log("Already here / more Points");
             return visited;
         }
-        if (movementPoints - calculateTileMoveCost(x, y) < 0)
+        if (endmovementPoints < 0)
         {
+            Debug.Log("Keine Punkte mehr");
             return visited;
         }
-        else if (movementPoints - calculateTileMoveCost(x, y) == 0)
+        else if (endmovementPoints >= 0)
         {
-            //Show on map
-           
-             //GameObject duplicate = Instantiate(TileData.footstepsCanGo);
-             //duplicate.transform.position = originalObject.transform.position + new Vector3(2, 0, 0);
-           
-            Debug.Log("ENDE: "+(x-20) + " "+ (y-20)+ " Step: "+ step);
-            visited[x, y] = true;
-            return visited;
-        } else {
-            //Show on map
-            Debug.Log((x - 20) + " " + (y - 20) + " Step: " + step);
-            visited[x, y] = true;
-            bool[,] a = BinaryOr(visited, (ShowmoveableHelp(x + 1, y, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] b = BinaryOr(a, (ShowmoveableHelp(x - 1, y, movementPoints - calculateTileMoveCost(x, y), visited, step)));
+           GameObject duplicate = Instantiate(errorfixer.footstepsCanGo);
+            duplicate.transform.position = errorfixer.tilemap.CellToWorld(new Vector3Int(x-20, y-20, 3)); if (endmovementPoints == 0)
+                if (endmovementPoints == 0)
+                { return visited; }
+                    
+            int tempx;
             if (y % 2 == 0)
-            {
-                bool[,] g = BinaryOr(b, (ShowmoveableHelp(x , y+1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-                bool[,] h = BinaryOr(g, (ShowmoveableHelp(x , y-1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-                bool[,] i = BinaryOr(h, (ShowmoveableHelp(x - 1, y+1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-                bool[,] j = BinaryOr(i, (ShowmoveableHelp(x - 1, y-1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-                return j;
-            }
-            else { 
-
-            bool[,] c = BinaryOr(b, (ShowmoveableHelp(x, y+1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] d = BinaryOr(c, (ShowmoveableHelp(x, y-1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] e = BinaryOr(d, (ShowmoveableHelp(x + 1, y+1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-            bool[,] f = BinaryOr(e, (ShowmoveableHelp(x + 1, y-1, movementPoints - calculateTileMoveCost(x, y), visited, step)));
-                return f;
-            }
-        }
+            { tempx = x - 1; }
+            else
+            { tempx = x + 1; }
+            (bool, int)[,] a = BinaryOr(visited, (ShowmoveableHelp(x + 1, y, endmovementPoints, visited)));
+            (bool, int)[,] b = BinaryOr(a, (ShowmoveableHelp(x - 1, y, endmovementPoints, visited)));
+            (bool, int)[,] g = BinaryOr(b, (ShowmoveableHelp(x, y + 1, endmovementPoints, visited)));
+            (bool, int)[,] h = BinaryOr(g, (ShowmoveableHelp(x, y - 1, endmovementPoints, visited)));
+            (bool, int)[,] e = BinaryOr(h, (ShowmoveableHelp(tempx, y+1, endmovementPoints, visited)));
+            (bool, int)[,] f = BinaryOr(e, (ShowmoveableHelp(tempx, y-1, endmovementPoints, visited)));
+            visited[x, y] = (true, endmovementPoints);
+            return f;
+         }
+        Debug.Log("Massive Movement-Point Error"+ endmovementPoints + movementPoints + calculateTileMoveCost(x, y));
+        return null;
     }
 
-    static bool[,] BinaryOr(bool[,] array1, bool[,] array2)
+    static (bool, int)[,] BinaryOr((bool,int)[,] array1, (bool,int)[,] array2)
     {
         int rows = array1.GetLength(0);
         int columns = array1.GetLength(1);
 
-        bool[,] result = new bool[rows, columns];
+        (bool, int)[,] result = new (bool, int)[rows, columns];
 
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < columns; j++)
             {
-                result[i, j] = array1[i, j] || array2[i, j];
+                if (array1[i, j].Item1 && array2[i, j].Item1)
+                {
+                    if (array1[i, j].Item2> array2[i,j].Item2)
+                    {
+                        result[i, j] = array1[i, j];
+                    }else
+                    {
+                        result[i, j] = array2[i, j];
+                    }
+                }else if ((!(array1[i, j].Item1)) && array2[i, j].Item1)
+                {
+                    result[i, j] = array2[i, j];
+                }else if (array1[i, j].Item1 && (!(array2[i, j].Item1)))
+                {
+                    result[i, j] = array1[i, j];
+                }
+                else
+                {
+                    result[i,j] = array2[i, j];
+                }
+
             }
         }
 
