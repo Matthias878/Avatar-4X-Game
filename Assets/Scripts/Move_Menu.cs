@@ -19,6 +19,7 @@ public class Move_Menu : MonoBehaviour
         {
             doIfFirstExecuted = true;
             tomove = TileData.GetPlayerMoveable(cellPos.x, cellPos.y);
+            TileData.Showmoveable(cellPos.x, cellPos.y, 2);
         }
         
         if (Input.GetMouseButtonDown(0))
@@ -29,5 +30,6 @@ public class Move_Menu : MonoBehaviour
             TileData.UpdateMoveables(cellPos.x, cellPos.y, oldPosofOb.x, oldPosofOb.y);
             tomove.transform.position = cellCenterPos;
         }
+
     }
 }
