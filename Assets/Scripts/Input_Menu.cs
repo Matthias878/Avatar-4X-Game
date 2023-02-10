@@ -35,7 +35,7 @@ public class Input_Menu : MonoBehaviour
                 {
                     Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     Vector3Int cellPos = tilemap.WorldToCell(worldPos);
-                    if (TileData.Elementispart(cellPos.x, cellPos.y))
+                    if (Army_Menu.Elementispart(cellPos.x, cellPos.y))
                     {
                         Controller.currentState = Controller.GameMode.PlayerMove;
                     }

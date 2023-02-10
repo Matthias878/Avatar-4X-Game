@@ -6,12 +6,6 @@ using UnityEngine.Tilemaps;
 
 public class TileData : MonoBehaviour
 {
-    private static TileData errorfixer;
-    public  Tilemap tilemap;
-    public GameObject startArmy;
-    public  GameObject footstepsCanGo;
-    private List<GameObject> todestroy= new List<GameObject>();
-    public static List<(int, int, int, GameObject)> player_moveable = new List<(int, int, int, GameObject)>(); //xKoordinate, yKoordinate, movementPoints
     public class Tile
     {
         public int xCoordinate;
@@ -37,11 +31,6 @@ public class TileData : MonoBehaviour
 
     void Start()
     {
-        errorfixer = new TileData();
-        errorfixer.tilemap = this.tilemap;
-        errorfixer.footstepsCanGo = this.footstepsCanGo;
-
-        player_moveable.Add((-2, -2, 8, startArmy));
         tiles = new Tile[41, 41];
         string terrain = "flat";
 
@@ -63,110 +52,50 @@ public class TileData : MonoBehaviour
     }
 
 
-    public static bool Elementispart(int x, int y)
-    {
-        return player_moveable.Exists(element => element.Item1 == x && element.Item2 == y);
-    }
-
-    public static void  UpdateMoveables(int new1, int new2, int old1, int old2)
-    {
-        for (int i = 0; i < player_moveable.Count; i++)
-        {
-            if (player_moveable[i].Item1 == old1 && player_moveable[i].Item2 == old2)
-            {
-                player_moveable[i] = (new1, new2, player_moveable[i].Item3, player_moveable[i].Item4);
-                break;
-            }
-        }
-    }
-
-    public static GameObject GetPlayerMoveable(int input1, int input2)
-    {
-        foreach ((int x, int y, int z, GameObject gameObject) in player_moveable)
-        {
-            if (input1 == x && input2 == y)
-            {
-                return gameObject;
-            }
-        }
-
-        throw new ArgumentException("Input is incorrect");
-    }
 
 
-    public static (bool, int)[,] Showmoveable(int X, int Y, int movementPoints)
+    public static (bool, int)[,] Showmoveable(int X, int Y, int BewPthis)
     {
        
         int x = X + 20;
         int y = Y + 20;
-        Debug.Log((x - 20) + " " + (y - 20));
-        int step = 0;
         (bool, int)[,] visited = new (bool, int)[41, 41];
         for (int i = 0; i < 41; i++) { for (int j = 0; j < 41; j++) { visited[i, j] = (false, 0); } }
         visited[x, y] = (true,3);
-        visited[18, 18] = (true,3);
-        int tempx;
-        if (y % 2 == 0)
-        { tempx = x - 1; }
-        else
-        { tempx = x + 1; }
-        (bool, int)[,] a = BinaryOr(visited, (ShowmoveableHelp(x + 1, y, movementPoints, visited)));
-        (bool, int)[,] b = BinaryOr(a, (ShowmoveableHelp(x - 1, y, movementPoints, visited)));
-        (bool, int)[,] g = BinaryOr(b, (ShowmoveableHelp(x, y + 1, movementPoints, visited)));
-        (bool, int)[,] h = BinaryOr(g, (ShowmoveableHelp(x, y - 1, movementPoints, visited)));
-        (bool, int)[,] e = BinaryOr(h, (ShowmoveableHelp(tempx, y + 1, movementPoints, visited)));
-        (bool, int)[,] f = BinaryOr(e, (ShowmoveableHelp(tempx, y - 1, movementPoints, visited)));
-        return f;
+        int tempx = (y % 2 == 0) ? x - 1 : x + 1;
+        (bool, int)[,] result = BinaryOr(visited, (Moves(x + 1, y, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(x - 1, y, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(x, y + 1, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(x, y - 1, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(tempx, y + 1, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(tempx, y - 1, BewPthis, visited)));
+        return result;
     }
 
-    static (bool, int)[,] ShowmoveableHelp(int x, int y, int movementPoints, (bool, int)[,] visited )
+    static (bool, int)[,] Moves(int x, int y, int movementPoints, (bool, int)[,] visited )
     {
-        Debug.Log("X: " + (x - 20) + " Y: " + (y - 20) + " currentPoints: " + (movementPoints-1));
-        int endmovementPoints = movementPoints - calculateTileMoveCost(x, y);
-
-        if (tiles[x, y].island == false)
-        {
-            Debug.Log("Ist kein Land");
-            return visited;
-        }
-
-        if (visited[x, y].Item1 == true && ((visited[x,y].Item2> endmovementPoints)))
-        {
-            
-            Debug.Log("Already here / more Points");
-            return visited;
-        }
-        if (endmovementPoints < 0)
-        {
-            Debug.Log("Keine Punkte mehr");
-            return visited;
-        }
-        else if (endmovementPoints >= 0)
-        {
-           GameObject duplicate = Instantiate(errorfixer.footstepsCanGo);
-            duplicate.transform.position = errorfixer.tilemap.CellToWorld(new Vector3Int(x-20, y-20, 3)); if (endmovementPoints == 0)
-                if (endmovementPoints == 0)
-                { return visited; }
-                    
-            int tempx;
-            if (y % 2 == 0)
-            { tempx = x - 1; }
-            else
-            { tempx = x + 1; }
-            (bool, int)[,] a = BinaryOr(visited, (ShowmoveableHelp(x + 1, y, endmovementPoints, visited)));
-            (bool, int)[,] b = BinaryOr(a, (ShowmoveableHelp(x - 1, y, endmovementPoints, visited)));
-            (bool, int)[,] g = BinaryOr(b, (ShowmoveableHelp(x, y + 1, endmovementPoints, visited)));
-            (bool, int)[,] h = BinaryOr(g, (ShowmoveableHelp(x, y - 1, endmovementPoints, visited)));
-            (bool, int)[,] e = BinaryOr(h, (ShowmoveableHelp(tempx, y+1, endmovementPoints, visited)));
-            (bool, int)[,] f = BinaryOr(e, (ShowmoveableHelp(tempx, y-1, endmovementPoints, visited)));
-            visited[x, y] = (true, endmovementPoints);
-            return f;
-         }
-        Debug.Log("Massive Movement-Point Error"+ endmovementPoints + movementPoints + calculateTileMoveCost(x, y));
-        return null;
+        //how many movepoints after the ones for current tile abgezogen
+        int BewPthis = movementPoints - calculateTileMoveCost(x, y);
+        //alle Gründe warum dieses Tile nicht gegangen werden kann: 1. ist kein Land 2. ein anderer Weg is schneller 3. Tile ist mit Bewegungspunkten nicht erreichbar
+        if ((tiles[x, y].island == false)|| (visited[x, y].Item1 == true && ((visited[x, y].Item2 > BewPthis)))|| (BewPthis < 0)){return visited;}
+            //Hat noch kein Symbol, dass dieses erreicht werden kann, Symbol wird erstellt
+            if (visited[x, y].Item1 == false){Display.showFootstep(x, y);}
+            //dieses Tile kann mit so und so vielen Bewegungspunkten erreicht werden
+            visited[x, y] = (true, BewPthis);
+            //hat keine Punkte mehr
+            if (BewPthis == 0){return visited;}
+            //Füge der Liste alle Nachbarn an und gib sie zurück
+            int tempx = (y % 2 == 0) ? x - 1 : x + 1;
+            (bool, int)[,] result = BinaryOr(visited, (Moves(x + 1, y, BewPthis, visited)));
+            result = BinaryOr(result, (Moves(x - 1, y, BewPthis, visited)));
+            result = BinaryOr(result, (Moves(x, y + 1, BewPthis, visited)));
+            result = BinaryOr(result, (Moves(x, y - 1, BewPthis, visited)));
+            result = BinaryOr(result, (Moves(tempx, y+1, BewPthis, visited)));
+            result = BinaryOr(result, (Moves(tempx, y-1, BewPthis, visited)));
+            return result;
     }
 
-    static (bool, int)[,] BinaryOr((bool,int)[,] array1, (bool,int)[,] array2)
+    private static (bool, int)[,] BinaryOr((bool,int)[,] array1, (bool,int)[,] array2)
     {
         int rows = array1.GetLength(0);
         int columns = array1.GetLength(1);

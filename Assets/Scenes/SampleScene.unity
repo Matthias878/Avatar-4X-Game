@@ -720,6 +720,8 @@ GameObject:
   - component: {fileID: 668997594}
   - component: {fileID: 668997595}
   - component: {fileID: 668997596}
+  - component: {fileID: 668997598}
+  - component: {fileID: 668997597}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -782,8 +784,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c81fc0fb4b5ca340b6d1bb609b2915e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startArmy: {fileID: 532878245}
-  footstepsCanGo: {fileID: 1590459562}
 --- !u!114 &668997596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -797,6 +797,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2078381747}
+--- !u!114 &668997597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668997590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d70656f96dc0ce419b6391e54f6b360, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilemap: {fileID: 2078381747}
+  footstepsCanGo: {fileID: 1590459562}
+--- !u!114 &668997598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668997590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6272cc19467a65479352121194a057c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startArmy: {fileID: 532878245}
 --- !u!1 &969200901
 GameObject:
   m_ObjectHideFlags: 0

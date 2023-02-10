@@ -18,7 +18,7 @@ public class Move_Menu : MonoBehaviour
         if (!doIfFirstExecuted)
         {
             doIfFirstExecuted = true;
-            tomove = TileData.GetPlayerMoveable(cellPos.x, cellPos.y);
+            tomove = Army_Menu.GetPlayerMoveable(cellPos.x, cellPos.y);
             TileData.Showmoveable(cellPos.x, cellPos.y, 3);
         }
         
@@ -27,7 +27,8 @@ public class Move_Menu : MonoBehaviour
             Vector3 cellCenterPos = tilemap.GetCellCenterWorld(cellPos);
             cellCenterPos.z = 1;
             Vector3Int oldPosofOb = tilemap.WorldToCell(tomove.transform.position);
-            TileData.UpdateMoveables(cellPos.x, cellPos.y, oldPosofOb.x, oldPosofOb.y);
+            //TileData.Showmoveable(cellPos.x, cellPos.y, 3);
+            Army_Menu.UpdateMoveables(cellPos.x, cellPos.y, oldPosofOb.x, oldPosofOb.y);
             tomove.transform.position = cellCenterPos;
         }
 
