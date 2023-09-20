@@ -4,54 +4,97 @@ using UnityEngine.UI;
 
 public class Input_Menu : MonoBehaviour
 {
+
+    public static GameMode currentState = GameMode.Overview;
+    public enum GameMode
+    {
+        Building,
+        Overview,
+        Fighting,
+        Menu,
+        EndTurn,
+        PlayerMove,
+        AutoMove,
+        TurnStart,
+        ResolveEvents
+    }
+
     public Button endturnbutton;
+    public Button EventButtonOneOne;
+
+    private bool EventButtonClicked = false;
     public Tilemap tilemap;
+    public static int currentTurn = 0;
+    public static bool NewTurn = true;
     private void Start()
     {
         endturnbutton.onClick.AddListener(EndTurnButtonclicked);
+        EventButtonOneOne.onClick.AddListener(EventButtonsclicked);
     }
 
     void EndTurnButtonclicked()
     {
-        Debug.Log(Controller.currentState);
+        NewTurn = true;//garantieren
+        currentTurn++;
+        NewTurn = false;
     }
+
+    void EventButtonsclicked(){EventButtonClicked = true;}
     void Update()
     {
+        Display.UpdateCurrentState(currentState.ToString());
+
         if (Input.GetKeyDown("b"))
         {
-            if (Controller.currentState == Controller.GameMode.Building)
+            if (currentState == GameMode.Building)
             {
-                Controller.currentState = Controller.GameMode.Overview;
+                currentState = GameMode.Overview;
             }
             else
             {
-                Controller.currentState = Controller.GameMode.Building;
+                currentState = GameMode.Building;
             }
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
-                if (Controller.currentState == Controller.GameMode.Overview)
+                if (currentState == GameMode.Overview)
                 {
                     Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     Vector3Int cellPos = tilemap.WorldToCell(worldPos);
-                    if (Army_Menu.Elementispart(cellPos.x, cellPos.y))
-                    {
-                        Controller.currentState = Controller.GameMode.PlayerMove;
+                    if(Move_Menu.IsArmy(cellPos.x, cellPos.y)){
+                        currentState = GameMode.PlayerMove;
                     }
+
+
                 }
             }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (Controller.currentState == Controller.GameMode.Overview)
+            if (currentState == GameMode.Overview)
             {
-                Controller.currentState = Controller.GameMode.Menu;
+                currentState = GameMode.Menu;
             }
             else
             {
-                Controller.currentState = Controller.GameMode.Overview;
+                currentState = GameMode.Overview;
             }
         }
+        
+        if(currentState == GameMode.Overview){
+            if(Events.CheckEvents()){
+                currentState = GameMode.ResolveEvents;
+            }
         }
+
+        if(currentState == GameMode.ResolveEvents && EventButtonClicked){
+            Debug.Log("A");
+            if(Events.ResolveEvents()){
+                Debug.Log("B");
+                EventButtonClicked = false;
+                currentState = GameMode.Overview;
+            }
+        }
+    }
 }

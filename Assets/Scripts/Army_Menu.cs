@@ -1,4 +1,7 @@
-using System;
+//depreciated
+
+
+/*using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,3 +46,4 @@ public class Army_Menu : MonoBehaviour
         throw new ArgumentException("Input is incorrect");
     }
 }
+*/

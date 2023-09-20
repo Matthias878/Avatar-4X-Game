@@ -9,103 +9,142 @@ using UnityEngine.Tilemaps;
 
 public class TileData : MonoBehaviour
 {
-    public class Tile
+    public class CustomTile
     {
-        public int xCoordinate;
-        public int yCoordinate;
+        public string terrain;
         public int farmLevel;
         public int streetLevel;
-        public string terrain;
-        public bool island;
+        public int Festungsstufe;
+        public bool IsLand;
+        public Army army;
+        public bool flag; //Can be used for temporary saving, like footsteps
 
-        public Tile(int x, int y, int farm, int street, string ter, bool land)
+        public CustomTile(int farm, int street, string ter, bool land)
         {
-            xCoordinate = x;
-            yCoordinate = y;
             farmLevel = farm;
             streetLevel = street;
             terrain = ter;
-            island = land;
+            IsLand = land;
+            army = null;
+            flag = false;
+            Festungsstufe = 1 ;
+        }
+
+        public CustomTile()
+        {
+            farmLevel = 1;
+            streetLevel = 1;
+            terrain = "flat";
+            IsLand = true;
+            army = null;
+            flag = false;
+            Festungsstufe =1 ;
+        }
+
+        public int increaseFarmTile(){farmLevel += 1;return farmLevel;}
+        public int increaseStreetTile(){streetLevel += 1;return streetLevel;}
+        public int decreaseFarmTile(){farmLevel -= 1;return farmLevel;}
+        public int decreaseStreetTile(){streetLevel -= 1;return streetLevel;}
+        public void ClearFlag(){flag = false;}
+        public bool HasArmy (){if(army == null){return false;}return true;}
+        public bool movearmyhere(Army newarmy) //picture needs to be moved seperatly DONE
+        {                                      // reduce movement points
+            if (army != null)                  // redraw footsteps
+                return false;                  //Check if inside of footsteps DONE
+            if (flag == false)
+                return false;
+            army = newarmy;
+            Display.ClearAll();
+            Display.showArmy(GetPosition(this).Item1, GetPosition(this).Item2);
+            TileData.Clearflags();
+            return true;
+        }
+        public Army GetArmy(){
+            return army; //Should never return null
+        }
+        public bool removearmy(){
+            if (this.HasArmy()){ 
+                Display.ClearArmy(GetPosition(this).Item1, GetPosition(this).Item2); 
+                army = null; 
+                return true;
+                }
+            return false;
         }
     }
 
-    static public Tile[,] tiles;
-    
+    static public CustomTile[,] tiles= new CustomTile[41, 41];
+    //Take X/Y from tilemap and add it to 20 to get it in tiles
 
+    public static CustomTile GetTile(int x, int y){//Tilepos to array
+        return tiles[20+x,20 +y];
+    }
+
+    public static void Clearflags(){
+        int rows = tiles.GetLength(0);
+        int columns = tiles.GetLength(1);
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < columns; j++)
+            {
+                if (tiles[i, j] != null)
+                {
+                    tiles[i, j].ClearFlag();
+                }
+            }
+        }
+    }
+    
     void Start()
     {
-        tiles = new Tile[41, 41];
         string terrain = "flat";
 
         for (int x = -20; x <= 20; x++)
         {
             for (int y = -20; y <= 20; y++)
             {
-                tiles[x + 20, y + 20] = new Tile(x, y, 1, 1, terrain, true);
+                tiles[x + 20, y + 20] = new CustomTile();
             }
         }
-        tiles[19, 19] = new Tile(-1, -1, 1, 1, terrain, false);
-        tiles[19, 18] = new Tile(-1, -2, 1, 1, terrain, false);
-        tiles[19, 17] = new Tile(-1, -3, 1, 1, terrain, false);
-        tiles[18, 17] = new Tile(-2, -3, 1, 1, terrain, false);
-        tiles[17, 17] = new Tile(-3, -3, 1, 1, terrain, false);
-        tiles[17, 16] = new Tile(-3, -4, 1, 1, terrain, false);
-        tiles[16, 15] = new Tile(-4, -5, 1, 1, terrain, false);
-        tiles[16, 14] = new Tile(-4, -6, 1, 1, terrain, false);
+        tiles[19, 19] = new CustomTile(1, 1, terrain, false);
+        tiles[19, 18] = new CustomTile(1, 1, terrain, false);
+        tiles[19, 17] = new CustomTile(1, 1, terrain, false);
+        tiles[18, 17] = new CustomTile(1, 1, terrain, false);
+        tiles[17, 17] = new CustomTile(1, 1, terrain, false);
+        tiles[17, 16] = new CustomTile(1, 1, terrain, false);
+        tiles[16, 15] = new CustomTile(1, 1, terrain, false);
+        tiles[16, 14] = new CustomTile(1, 1, terrain, false);
     }
 
-/*    
-    public static bool[,] GiveShortestWay(int startX, int startY, int goalX, int goalY, (bool, int)[,] moveableTiles)
-    {
-        var tilemapLibGraph = new AdjacencyGraph<string, Edge<string>>();
+    public static void Startwait(){
+        tiles[18, 18].flag = true;
+        tiles[18, 18].movearmyhere(new Army ("Matthias Limmer"));//TIMING ISSUE WITH DISPLAY
+        tiles[23, 15].flag = true;
+        tiles[23, 15].movearmyhere(new Army ("Lanna"));//TIMING ISSUE WITH DISPLAY
 
-        for (int x = 0; x < 41; x++)
+    }
+
+
+    public static (int, int) GetPosition(CustomTile Tile){
+    int rows = tiles.GetLength(0);
+    int columns = tiles.GetLength(1);
+    for (int i = 0; i < rows; i++)
         {
-            for (int y = 0; y < 41; y++)
+            for (int j = 0; j < columns; j++)
             {
-                if (moveableTiles[x, y].Item1)
+                if (tiles[i, j] != null)
                 {
-                    string vertexName = x + "," + y;
-                    tilemapLibGraph.AddVertex(vertexName);
+                    if (tiles[i, j].Equals(Tile))
+                     return (i, j);
+
                 }
             }
         }
+        Debug.Log("Error! Tile not found! Using 0,0 as Start");
+        return (0,0);
+    }
 
-        for (int x = 0; x < 41; x++)
-        {
-            for (int y = 0; y < 41; y++)
-            {
-                if (moveableTiles[x, y].Item1)
-                {
-                    string vertexName = x + "," + y;
-                    int tempx = (y % 2 == 0) ? x - 1 : x + 1;
-                    tilemapLibGraph.AddEdge(new Edge<string>(vertexName, (x + 1 + "," + y), calculateTileMoveCost(x + 1, y, moveableTiles)));
-                    tilemapLibGraph.AddEdge(new Edge<string>(vertexName, (x + 1+","+ y)));
-                    tilemapLibGraph.AddEdge(new Edge<string>(vertexName, (x - 1 + "," + y)));
-                    tilemapLibGraph.AddEdge(new Edge<string>(vertexName, (x + "," + y + 1)));
-                    tilemapLibGraph.AddEdge(new Edge<string>(vertexName, (x + "," + (y - 1))));
-                    tilemapLibGraph.AddEdge(new Edge<string>(vertexName, (tempx + "," + y + 1)));
-                    tilemapLibGraph.AddEdge(new Edge<string>(vertexName, (tempx + "," + (y - 1))));
-                }
-            }
-        }
-
-        var algorithm = new DijkstraShortestPathAlgorithm<string, Edge<string>>(tilemapLibGraph);
-
-        algorithm.Compute("A");
-
-        double distance;
-        if (algorithm.TryGetDistance("F", out distance))
-            Console.WriteLine("The shortest distance from A to F is: " + distance);
-        else
-            Console.WriteLine("There is no path from A to F");
-
-
-
-        return new bool[3,3];
-    }*/
-
-
+    //get's a point and movementPoints draws all reachable tiles
     public static (bool, int)[,] Showmoveable(int X, int Y, int BewPthis)
     {
        
@@ -128,22 +167,23 @@ public class TileData : MonoBehaviour
         //how many movepoints after the ones for current tile abgezogen
         int BewPthis = movementPoints - calculateTileMoveCost(x, y);
         //alle Gr�nde warum dieses Tile nicht gegangen werden kann: 1. ist kein Land 2. ein anderer Weg is schneller 3. Tile ist mit Bewegungspunkten nicht erreichbar
-        if ((tiles[x, y].island == false)|| (visited[x, y].Item1 == true && ((visited[x, y].Item2 > BewPthis)))|| (BewPthis < 0)){return visited;}
-            //Hat noch kein Symbol, dass dieses erreicht werden kann, Symbol wird erstellt
-            if (visited[x, y].Item1 == false){Display.showFootstep(x, y);}
-            //dieses Tile kann mit so und so vielen Bewegungspunkten erreicht werden
-            visited[x, y] = (true, BewPthis);
-            //hat keine Punkte mehr
-            if (BewPthis == 0){return visited;}
-            //F�ge der Liste alle Nachbarn an und gib sie zur�ck
-            int tempx = (y % 2 == 0) ? x - 1 : x + 1;
-            (bool, int)[,] result = BinaryOr(visited, (Moves(x + 1, y, BewPthis, visited)));
-            result = BinaryOr(result, (Moves(x - 1, y, BewPthis, visited)));
-            result = BinaryOr(result, (Moves(x, y + 1, BewPthis, visited)));
-            result = BinaryOr(result, (Moves(x, y - 1, BewPthis, visited)));
-            result = BinaryOr(result, (Moves(tempx, y+1, BewPthis, visited)));
-            result = BinaryOr(result, (Moves(tempx, y-1, BewPthis, visited)));
-            return result;
+        if ((tiles[x, y].IsLand == false)|| (visited[x, y].Item1 == true && ((visited[x, y].Item2 > BewPthis)))|| (BewPthis < 0)){return visited;}
+        //Hat noch kein Symbol, dass dieses erreicht werden kann, Symbol wird erstellt
+        if (visited[x, y].Item1 == false){Display.showFootstep(x, y);}
+        tiles[x, y].flag = true;
+        //dieses Tile kann mit so und so vielen Bewegungspunkten erreicht werden
+        visited[x, y] = (true, BewPthis);
+        //hat keine Punkte mehr
+        if (BewPthis == 0){return visited;}
+        //F�ge der Liste alle Nachbarn an und gib sie zur�ck
+        int tempx = (y % 2 == 0) ? x - 1 : x + 1;
+        (bool, int)[,] result = BinaryOr(visited, (Moves(x + 1, y, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(x - 1, y, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(x, y + 1, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(x, y - 1, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(tempx, y+1, BewPthis, visited)));
+        result = BinaryOr(result, (Moves(tempx, y-1, BewPthis, visited)));
+        return result;
     }
 
     private static (bool, int)[,] BinaryOr((bool,int)[,] array1, (bool,int)[,] array2)

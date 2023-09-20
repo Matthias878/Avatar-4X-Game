@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.EventSystems;
 
 public class Build_menu : MonoBehaviour
 {
@@ -9,7 +10,9 @@ public class Build_menu : MonoBehaviour
 
     void Update()
     {
-        if (!(Controller.currentState == Controller.GameMode.Building))
+        if (EventSystem.current.IsPointerOverGameObject())
+        return;
+        if (!(Input_Menu.currentState == Input_Menu.GameMode.Building))
         {
             Build_Menu.SetActive(false); 
         clickedCellPos = new Vector3Int(0, 0, -5);
@@ -29,7 +32,7 @@ public class Build_menu : MonoBehaviour
             Build_Menu.transform.position = cellCenterPos;
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {
             if (cellPos == clickedCellPos)
             {

@@ -4,18 +4,22 @@ public class CameraController : MonoBehaviour
 {
     public float panSpeed = 20f;
     public float panBorderThickness = 10f;
-    public float zoomSpeed = 100.0f;
+    public float zoomSpeed = 4000.0f;
     public float zoomMin = 10f;
     public float zoomMax = 80f;
 
 
     void Update()
     {
-        if (Controller.currentState != Controller.GameMode.Overview)
+        if (Input_Menu.currentState != Input_Menu.GameMode.Overview)
             return;
         // Scroll to zoom in and out
+
+
         float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if((Camera.main.orthographicSize  -(scroll * Time.deltaTime * zoomSpeed))>0){
         Camera.main.orthographicSize -= scroll * Time.deltaTime * zoomSpeed;
+        }
 
 
         // Move camera with arrow keys or mouse position at the edge of the screen
@@ -29,11 +33,11 @@ public class CameraController : MonoBehaviour
         }
         if (Input.GetKey("d") || (Input.mousePosition.x >= Screen.width - panBorderThickness && Input.mousePosition.x <= Screen.width))
         {
-            transform.Translate(Vector3.left * panSpeed * Time.deltaTime, Space.World);
+            transform.Translate(Vector3.right * panSpeed * Time.deltaTime, Space.World);
         }
         if (Input.GetKey("a") || (Input.mousePosition.x >= 0 && Input.mousePosition.x <= panBorderThickness))
         {
-            transform.Translate(Vector3.right * panSpeed * Time.deltaTime, Space.World);
+            transform.Translate(Vector3.left * panSpeed * Time.deltaTime, Space.World);
         }
     }
 
